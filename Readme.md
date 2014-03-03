@@ -20,7 +20,7 @@ normalize(editor, 'Let this paper be your oyster...');
 
 ### Normalize(el, [placeholder])
 
-Initialize `normalize` on the contenteditable element `el`. Optionally pass some `placeholder` text when the contenteditable element has no content. By default `placeholder` is a [zero-width space (u200B)](http://en.wikipedia.org/wiki/Zero-width_space).
+Initialize `normalize` on the contenteditable element `el`. Optionally pass some `placeholder` text when the contenteditable element has no content. By default `placeholder` is a [zero-width space (\u200B)](http://en.wikipedia.org/wiki/Zero-width_space).
 
 ### Normalize#unbind()
 
