@@ -1539,10 +1539,10 @@ var classes = require('classes');\n\
 var shortcuts = require('shortcuts');\n\
 \n\
 /**\n\
- * Export `normalize`\n\
+ * Export `Normalize`\n\
  */\n\
 \n\
-module.exports = normalize;\n\
+module.exports = Normalize;\n\
 \n\
 /**\n\
  * <p> tag\n\
@@ -1554,22 +1554,21 @@ var p = domify('<p class=\"placeholder\"></p>');\n\
  * Normalize the contenteditable element\n\
  *\n\
  * @param {Element} el\n\
- * @param {String} placeholder (optional)\n\
  * @return {el}\n\
  * @api public\n\
  */\n\
 \n\
-function normalize(el, placeholder) {\n\
-  if (!(this instanceof normalize)) return new normalize(el, placeholder);\n\
+function Normalize(el) {\n\
+  if (!(this instanceof Normalize)) return new Normalize(el);\n\
   this.el = el;\n\
   this.added = false;\n\
 \n\
   // default to a zero-width space\n\
-  this.placeholder = placeholder || '\\u200B';\n\
+  this._placeholder = '\\u200B';\n\
 \n\
   // create our elements\n\
   this.p = p.cloneNode();\n\
-  this.p.textContent = this.placeholder;\n\
+  this.p.textContent = this._placeholder;\n\
 \n\
   // events\n\
   this.events = events(el, this);\n\
@@ -1591,13 +1590,28 @@ function normalize(el, placeholder) {\n\
 }\n\
 \n\
 /**\n\
+ * Add a placeholder\n\
+ *\n\
+ * @param {String} placeholder\n\
+ * @return {Normalize} self\n\
+ * @api public\n\
+ */\n\
+\n\
+Normalize.prototype.placeholder = function(placeholder) {\n\
+  this._placeholder = placeholder;\n\
+  this.p.textContent = placeholder;\n\
+  return this;\n\
+};\n\
+\n\
+\n\
+/**\n\
  * Initialize our contenteditable\n\
  *\n\
  * @return {Normalize} self\n\
  * @api private\n\
  */\n\
 \n\
-normalize.prototype.init = function() {\n\
+Normalize.prototype.init = function() {\n\
   var el = this.el;\n\
   var str = trim(el.textContent);\n\
   if (str) return this;\n\
@@ -1615,20 +1629,20 @@ normalize.prototype.init = function() {\n\
  * @api private\n\
  */\n\
 \n\
-normalize.prototype.update = raf(function() {\n\
+Normalize.prototype.update = raf(function() {\n\
   var el = this.el;\n\
   var str = el.textContent;\n\
 \n\
-  if (str && str != this.placeholder && this.added) {\n\
+  if (str && str != this._placeholder && this.added) {\n\
     // turn placeholder into regular <p>\n\
     classes(this.p).remove('placeholder');\n\
-    this.p.textContent = this.p.textContent.slice(0, -this.placeholder.length);\n\
+    this.p.textContent = this.p.textContent.slice(0, -this._placeholder.length);\n\
     this.end(this.p);\n\
     this.added = false;\n\
   } if (!str && !this.added && el.children.length <= 1) {\n\
     // turn old paragraph into placeholder\n\
     classes(this.p).add('placeholder');\n\
-    this.p.textContent = this.placeholder;\n\
+    this.p.textContent = this._placeholder;\n\
     this.added = true;\n\
   }\n\
 \n\
@@ -1643,7 +1657,7 @@ normalize.prototype.update = raf(function() {\n\
  * @api private\n\
  */\n\
 \n\
-normalize.prototype.front = raf(function() {\n\
+Normalize.prototype.front = raf(function() {\n\
   if (this.added) this.start(this.p);\n\
   return this;\n\
 });\n\
@@ -1656,7 +1670,7 @@ normalize.prototype.front = raf(function() {\n\
  * @api private\n\
  */\n\
 \n\
-normalize.prototype.start = function(el) {\n\
+Normalize.prototype.start = function(el) {\n\
   var sel = selection();\n\
   var range = document.createRange();\n\
   range.selectNodeContents(el);\n\
@@ -1674,7 +1688,7 @@ normalize.prototype.start = function(el) {\n\
  * @api private\n\
  */\n\
 \n\
-normalize.prototype.end = function(el) {\n\
+Normalize.prototype.end = function(el) {\n\
   var sel = selection();\n\
   var range = document.createRange();\n\
   range.selectNodeContents(el);\n\
@@ -1692,7 +1706,7 @@ normalize.prototype.end = function(el) {\n\
  * @api private\n\
  */\n\
 \n\
-normalize.prototype.prevent = function(e) {\n\
+Normalize.prototype.prevent = function(e) {\n\
   if (this.added) e.preventDefault();\n\
   return false;\n\
 };\n\
@@ -1704,7 +1718,7 @@ normalize.prototype.prevent = function(e) {\n\
  * @api public\n\
  */\n\
 \n\
-normalize.prototype.unbind = function() {\n\
+Normalize.prototype.unbind = function() {\n\
   this.shortcuts.unbind();\n\
   this.events.unbind();\n\
   return this;\n\
