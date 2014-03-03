@@ -1,7 +1,7 @@
 
 # normalize-contenteditable
 
-  All text in a content-editable block should be wrapped in <p> tag. Each browser handles content-editables just a bit different. The goal of this library is to normalize these inconsistencies.
+  All text in a content-editable block should be wrapped in `<p>` tag. Each browser handles content-editables just a bit different. The goal of this library is to normalize these inconsistencies.
 
 ## Installation
 
