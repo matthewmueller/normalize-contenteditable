@@ -1,0 +1,21 @@
+{
+  "name": "normalize-contenteditable",
+  "repo": "matthewmueller/normalize-contenteditable",
+  "description": "normalize initial input across browsers for contenteditable elements",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/domify": "1.2.2",
+    "component/trim": "0.0.1",
+    "component/events": "1.0.6",
+    "matthewmueller/per-frame": "2.0.0",
+    "component/classes": "1.2.1",
+    "yields/shortcuts": "0.2.0"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ]
+}
