@@ -38,7 +38,8 @@
   <script src="../build/build.js" type="text/javascript"></script>
   <script type="text/javascript">
     var Normalize = require('normalize-contenteditable');
-    var normalize = Normalize(editor, 'Let this paper be your oyster...');
+    var normalize = Normalize(editor)
+      .placeholder('Let this paper be your oyster...');
 
   </script>
 </body>

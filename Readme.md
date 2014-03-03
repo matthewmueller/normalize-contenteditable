@@ -13,14 +13,20 @@
 
 ```js
 var normalize = require('normalize-contenteditable');
-normalize(editor, 'Let this paper be your oyster...');
+
+normalize(editor)
+  .placeholder('Let this paper be your oyster...');
 ```
 
 ## API
 
-### Normalize(el, [placeholder])
+### Normalize(el)
 
-Initialize `normalize` on the contenteditable element `el`. Optionally pass some `placeholder` text when the contenteditable element has no content. By default `placeholder` is a [zero-width space (\u200B)](http://en.wikipedia.org/wiki/Zero-width_space).
+Initialize `normalize` on the contenteditable element `el`. Optionally pass some `placeholder` text when the contenteditable element has no content.
+
+### Normalize#placeholder(placeholder)
+
+Add a placeholder. By default `placeholder` is a [zero-width space (\u200B)](http://en.wikipedia.org/wiki/Zero-width_space).
 
 ### Normalize#unbind()
 

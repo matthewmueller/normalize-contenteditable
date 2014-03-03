@@ -11,10 +11,10 @@ var classes = require('classes');
 var shortcuts = require('shortcuts');
 
 /**
- * Export `normalize`
+ * Export `Normalize`
  */
 
-module.exports = normalize;
+module.exports = Normalize;
 
 /**
  * <p> tag
@@ -26,22 +26,21 @@ var p = domify('<p class="placeholder"></p>');
  * Normalize the contenteditable element
  *
  * @param {Element} el
- * @param {String} placeholder (optional)
  * @return {el}
  * @api public
  */
 
-function normalize(el, placeholder) {
-  if (!(this instanceof normalize)) return new normalize(el, placeholder);
+function Normalize(el) {
+  if (!(this instanceof Normalize)) return new Normalize(el);
   this.el = el;
   this.added = false;
 
   // default to a zero-width space
-  this.placeholder = placeholder || '\u200B';
+  this._placeholder = '\u200B';
 
   // create our elements
   this.p = p.cloneNode();
-  this.p.textContent = this.placeholder;
+  this.p.textContent = this._placeholder;
 
   // events
   this.events = events(el, this);
@@ -63,13 +62,28 @@ function normalize(el, placeholder) {
 }
 
 /**
+ * Add a placeholder
+ *
+ * @param {String} placeholder
+ * @return {Normalize} self
+ * @api public
+ */
+
+Normalize.prototype.placeholder = function(placeholder) {
+  this._placeholder = placeholder;
+  this.p.textContent = placeholder;
+  return this;
+};
+
+
+/**
  * Initialize our contenteditable
  *
  * @return {Normalize} self
  * @api private
  */
 
-normalize.prototype.init = function() {
+Normalize.prototype.init = function() {
   var el = this.el;
   var str = trim(el.textContent);
   if (str) return this;
@@ -87,20 +101,20 @@ normalize.prototype.init = function() {
  * @api private
  */
 
-normalize.prototype.update = raf(function() {
+Normalize.prototype.update = raf(function() {
   var el = this.el;
   var str = el.textContent;
 
-  if (str && str != this.placeholder && this.added) {
+  if (str && str != this._placeholder && this.added) {
     // turn placeholder into regular <p>
     classes(this.p).remove('placeholder');
-    this.p.textContent = this.p.textContent.slice(0, -this.placeholder.length);
+    this.p.textContent = this.p.textContent.slice(0, -this._placeholder.length);
     this.end(this.p);
     this.added = false;
   } if (!str && !this.added && el.children.length <= 1) {
     // turn old paragraph into placeholder
     classes(this.p).add('placeholder');
-    this.p.textContent = this.placeholder;
+    this.p.textContent = this._placeholder;
     this.added = true;
   }
 
@@ -115,7 +129,7 @@ normalize.prototype.update = raf(function() {
  * @api private
  */
 
-normalize.prototype.front = raf(function() {
+Normalize.prototype.front = raf(function() {
   if (this.added) this.start(this.p);
   return this;
 });
@@ -128,7 +142,7 @@ normalize.prototype.front = raf(function() {
  * @api private
  */
 
-normalize.prototype.start = function(el) {
+Normalize.prototype.start = function(el) {
   var sel = selection();
   var range = document.createRange();
   range.selectNodeContents(el);
@@ -146,7 +160,7 @@ normalize.prototype.start = function(el) {
  * @api private
  */
 
-normalize.prototype.end = function(el) {
+Normalize.prototype.end = function(el) {
   var sel = selection();
   var range = document.createRange();
   range.selectNodeContents(el);
@@ -164,7 +178,7 @@ normalize.prototype.end = function(el) {
  * @api private
  */
 
-normalize.prototype.prevent = function(e) {
+Normalize.prototype.prevent = function(e) {
   if (this.added) e.preventDefault();
   return false;
 };
@@ -176,7 +190,7 @@ normalize.prototype.prevent = function(e) {
  * @api public
  */
 
-normalize.prototype.unbind = function() {
+Normalize.prototype.unbind = function() {
   this.shortcuts.unbind();
   this.events.unbind();
   return this;
