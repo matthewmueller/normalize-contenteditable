@@ -1,4 +1,10 @@
 
+0.1.1 / 2014-03-04
+==================
+
+ * pin bmcmahen/modifier
+ * add browser support docs
+
 0.1.0 / 2014-03-04
 ==================
 
