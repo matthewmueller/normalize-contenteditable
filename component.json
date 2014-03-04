@@ -11,7 +11,7 @@
     "matthewmueller/per-frame": "2.0.0",
     "component/classes": "1.2.1",
     "yields/shortcuts": "0.2.0",
-    "bmcmahen/modifier": "*"
+    "bmcmahen/modifier": "0.0.1"
   },
   "development": {},
   "license": "MIT",
