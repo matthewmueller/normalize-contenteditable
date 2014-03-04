@@ -63,8 +63,7 @@ function Normalize(el) {
   this.events.bind('keydown', 'update');
   this.events.bind('mousedown', 'front');
   this.events.bind('mousemove', 'front');
-  this.events.bind('touchstart', 'front');
-  this.events.bind('touchmove', 'front');
+  this.events.bind('touchend', 'front');
   this.events.bind('focus', 'front');
 
   // add our placeholder or use the first paragraph
@@ -105,7 +104,6 @@ Normalize.prototype.placeholder = function(placeholder) {
 
 Normalize.prototype.update = raf(function(e) {
   if (modifier(e)) return this;
-
   var el = this.el;
   var str = el.textContent;
 
@@ -141,7 +139,9 @@ Normalize.prototype.update = raf(function(e) {
  */
 
 Normalize.prototype.front = raf(function() {
-  if (this.added && this.el == document.activeElement) this.start(this.p);
+  if (this.added && this.el == document.activeElement) {
+    this.start(this.p);
+  }
   return this;
 });
 

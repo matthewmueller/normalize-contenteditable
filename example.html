@@ -1,6 +1,8 @@
 <html>
 <head>
   <title>normalize component</title>
+  <link rel="stylesheet" href="../build/build.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <style>
     * {
       box-sizing: border-box;
@@ -11,10 +13,19 @@
       margin: 0;
       width: 100%;
       height: 100%;
-      padding: 50px;
       font: 20px 'menlo';
       color: #222;
       background: #fefefe;
+    }
+
+    body {
+      padding: 100px;
+    }
+
+    @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+      body {
+        padding: 0;
+      }
     }
 
     [contenteditable]{
