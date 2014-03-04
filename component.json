@@ -10,7 +10,8 @@
     "component/events": "1.0.6",
     "matthewmueller/per-frame": "2.0.0",
     "component/classes": "1.2.1",
-    "yields/shortcuts": "0.2.0"
+    "yields/shortcuts": "0.2.0",
+    "bmcmahen/modifier": "*"
   },
   "development": {},
   "license": "MIT",

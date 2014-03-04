@@ -9,6 +9,7 @@ var events = require('events');
 var raf = require('per-frame');
 var classes = require('classes');
 var shortcuts = require('shortcuts');
+var modifier = require('modifier');
 
 /**
  * Export `Normalize`
@@ -17,10 +18,19 @@ var shortcuts = require('shortcuts');
 module.exports = Normalize;
 
 /**
+ * Backspace
+ */
+
+var backspace = {
+  8: true,
+  46: true
+};
+
+/**
  * <p> tag
  */
 
-var p = domify('<p class="placeholder"></p>');
+var tpl = domify('<p class="placeholder"></p>');
 
 /**
  * Normalize the contenteditable element
@@ -37,10 +47,16 @@ function Normalize(el) {
 
   // default to a zero-width space
   this._placeholder = '\u200B';
+  document.execCommand('defaultParagraphSeparator', false, 'p');
 
-  // create our elements
-  this.p = p.cloneNode();
-  this.p.textContent = this._placeholder;
+  // prevent certain keys
+  this.shortcuts = shortcuts(el, this);
+  this.shortcuts.k.ignore = false;
+  this.shortcuts.bind('backspace', 'prevent');
+  this.shortcuts.bind('enter', 'prevent');
+  this.shortcuts.bind('super + a', 'prevent');
+  this.shortcuts.bind('right', 'prevent');
+  this.shortcuts.bind('down', 'prevent');
 
   // events
   this.events = events(el, this);
@@ -49,16 +65,19 @@ function Normalize(el) {
   this.events.bind('mousemove', 'front');
   this.events.bind('touchstart', 'front');
   this.events.bind('touchmove', 'front');
+  this.events.bind('focus', 'front');
 
-  // prevent certain keys
-  this.shortcuts = shortcuts(el, this);
-  this.shortcuts.k.ignore = false;
-  this.shortcuts.bind('enter', 'prevent');
-  this.shortcuts.bind('super + a', 'prevent');
-  this.shortcuts.bind('right', 'prevent');
-  this.shortcuts.bind('down', 'prevent');
-
-  this.init();
+  // add our placeholder or use the first paragraph
+  var p = el.getElementsByTagName('p');
+  if (p.length) {
+    this.p = p[0];
+    this.added = false;
+  } else {
+    this.p = tpl.cloneNode();
+    this.p.textContent = this._placeholder;
+    el.insertBefore(this.p, el.firstChild);
+    this.added = true;
+  }
 }
 
 /**
@@ -71,28 +90,11 @@ function Normalize(el) {
 
 Normalize.prototype.placeholder = function(placeholder) {
   this._placeholder = placeholder;
-  this.p.textContent = placeholder;
+  if (classes(this.p).has('placeholder')) {
+    this.p.textContent = placeholder;
+  }
   return this;
 };
-
-
-/**
- * Initialize our contenteditable
- *
- * @return {Normalize} self
- * @api private
- */
-
-Normalize.prototype.init = function() {
-  var el = this.el;
-  var str = trim(el.textContent);
-  if (str) return this;
-
-  el.insertBefore(this.p, el.firstChild);
-  this.added = true;
-
-  return this;
-}
 
 /**
  * Update the placeholder, either showing or hiding.
@@ -101,7 +103,9 @@ Normalize.prototype.init = function() {
  * @api private
  */
 
-Normalize.prototype.update = raf(function() {
+Normalize.prototype.update = raf(function(e) {
+  if (modifier(e)) return this;
+
   var el = this.el;
   var str = el.textContent;
 
@@ -111,10 +115,17 @@ Normalize.prototype.update = raf(function() {
     this.p.textContent = this.p.textContent.slice(0, -this._placeholder.length);
     this.end(this.p);
     this.added = false;
-  } if (!str && !this.added && el.children.length <= 1) {
+  } if (!trim(str) && !this.added && el.children.length <= 1) {
+    // FF removes the paragraph with select all, add it back.
+    if (!el.contains(this.p)) {
+      el.insertBefore(this.p, el.firstChild);
+      this.start(this.p);
+    }
+
     // turn old paragraph into placeholder
     classes(this.p).add('placeholder');
     this.p.textContent = this._placeholder;
+    this.p.normalize();
     this.added = true;
   }
 
@@ -130,7 +141,7 @@ Normalize.prototype.update = raf(function() {
  */
 
 Normalize.prototype.front = raf(function() {
-  if (this.added) this.start(this.p);
+  if (this.added && this.el == document.activeElement) this.start(this.p);
   return this;
 });
 
@@ -179,7 +190,11 @@ Normalize.prototype.end = function(el) {
  */
 
 Normalize.prototype.prevent = function(e) {
-  if (this.added) e.preventDefault();
+  if (this.added) {
+    // TODO: < IE9 support
+    e.stopImmediatePropagation();
+    e.preventDefault();
+  }
   return false;
 };
 
