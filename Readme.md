@@ -32,9 +32,17 @@ Add a placeholder. By default `placeholder` is a [zero-width space (\u200B)](htt
 
 Unbind all attached events.
 
+## Browser Support
+
+Currently tested on:
+
+- chrome
+- safari
+- firefox
+- ios 7
+
 ## TODO
 
-* firefox select all deletes the placeholder paragraph
 * IE9+ testing
 * functional tests
 
