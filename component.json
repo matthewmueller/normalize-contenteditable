@@ -2,7 +2,7 @@
   "name": "normalize-contenteditable",
   "repo": "matthewmueller/normalize-contenteditable",
   "description": "normalize initial input across browsers for contenteditable elements",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "keywords": [],
   "dependencies": {
     "component/domify": "1.2.2",
