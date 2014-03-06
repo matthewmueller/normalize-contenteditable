@@ -116,8 +116,15 @@ Normalize.prototype.update = raf(function(e) {
   } if (!trim(str) && !this.added && el.children.length <= 1) {
     // FF removes the paragraph with select all, add it back.
     if (!el.contains(this.p)) {
-      el.insertBefore(this.p, el.firstChild);
-      this.start(this.p);
+      if (el.firstChild) el.insertBefore(this.p, el.firstChild);
+      else el.appendChild(this.p);
+    }
+
+    // cleanup other immediate children
+    var next = this.p.nextSibling;
+    while (next) {
+      this.el.removeChild(next);
+      next = next.nextSibling;
     }
 
     // turn old paragraph into placeholder
@@ -125,6 +132,9 @@ Normalize.prototype.update = raf(function(e) {
     this.p.textContent = this._placeholder;
     this.p.normalize();
     this.added = true;
+
+    // move cursor to the start
+    this.start(this.p);
   }
 
   return this;
