@@ -121,10 +121,10 @@ Normalize.prototype.update = raf(function(e) {
     }
 
     // cleanup other immediate children
-    var next = this.p.nextSibling;
-    while (next) {
-      this.el.removeChild(next);
-      next = next.nextSibling;
+    var last = this.el.lastChild;
+    while (last && this.p != last) {
+      this.el.removeChild(last);
+      last = this.el.lastChild;
     }
 
     // turn old paragraph into placeholder
