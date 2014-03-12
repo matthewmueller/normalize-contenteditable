@@ -6,10 +6,12 @@ var selection = window.getSelection;
 var domify = require('domify');
 var trim = require('trim');
 var events = require('events');
-var raf = require('per-frame');
+var throttle = require('per-frame');
 var classes = require('classes');
 var shortcuts = require('shortcuts');
 var modifier = require('modifier');
+var closest = require('closest');
+var raf = require('raf');
 
 /**
  * Export `Normalize`
@@ -30,7 +32,7 @@ var backspace = {
  * <p> tag
  */
 
-var tpl = domify('<p class="placeholder"></p>');
+var tpl = domify('<div class="block"><p class="placeholder"></p></div>');
 
 /**
  * Normalize the contenteditable element
@@ -44,16 +46,16 @@ function Normalize(el) {
   if (!(this instanceof Normalize)) return new Normalize(el);
   this.el = el;
   this.added = false;
+  this.tpl = tpl.cloneNode(true);
 
   // default to a zero-width space
   this._placeholder = '\u200B';
-  document.execCommand('defaultParagraphSeparator', false, 'p');
 
   // prevent certain keys
   this.shortcuts = shortcuts(el, this);
   this.shortcuts.k.ignore = false;
   this.shortcuts.bind('backspace', 'prevent');
-  this.shortcuts.bind('enter', 'prevent');
+  this.shortcuts.bind('enter', 'onenter');
   this.shortcuts.bind('super + a', 'prevent');
   this.shortcuts.bind('right', 'prevent');
   this.shortcuts.bind('down', 'prevent');
@@ -72,12 +74,23 @@ function Normalize(el) {
     this.p = p[0];
     this.added = false;
   } else {
-    this.p = tpl.cloneNode();
+    this.tpl = tpl.cloneNode(true);
+    this.p = this.tpl.querySelector('.placeholder');
     this.p.textContent = this._placeholder;
-    el.insertBefore(this.p, el.firstChild);
+    el.insertBefore(this.tpl, el.firstChild);
     this.added = true;
   }
 }
+
+/**
+ * template
+ */
+
+Normalize.prototype.template = function(tpl) {
+  this.tpl = tpl;
+  return this;
+};
+
 
 /**
  * Add a placeholder
@@ -89,9 +102,11 @@ function Normalize(el) {
 
 Normalize.prototype.placeholder = function(placeholder) {
   this._placeholder = placeholder;
+
   if (classes(this.p).has('placeholder')) {
     this.p.textContent = placeholder;
   }
+
   return this;
 };
 
@@ -102,7 +117,7 @@ Normalize.prototype.placeholder = function(placeholder) {
  * @api private
  */
 
-Normalize.prototype.update = raf(function(e) {
+Normalize.prototype.update = throttle(function(e) {
   if (modifier(e)) return this;
   var el = this.el;
   var str = el.textContent;
@@ -115,14 +130,14 @@ Normalize.prototype.update = raf(function(e) {
     this.added = false;
   } if (!trim(str) && !this.added && el.children.length <= 1) {
     // FF removes the paragraph with select all, add it back.
-    if (!el.contains(this.p)) {
-      if (el.firstChild) el.insertBefore(this.p, el.firstChild);
-      else el.appendChild(this.p);
+    if (!el.contains(this.tpl)) {
+      if (el.firstChild) el.insertBefore(this.tpl, el.firstChild);
+      else el.appendChild(this.tpl);
     }
 
     // cleanup other immediate children
     var last = this.el.lastChild;
-    while (last && this.p != last) {
+    while (last && this.tpl != last) {
       this.el.removeChild(last);
       last = this.el.lastChild;
     }
@@ -130,7 +145,7 @@ Normalize.prototype.update = raf(function(e) {
     // turn old paragraph into placeholder
     classes(this.p).add('placeholder');
     this.p.textContent = this._placeholder;
-    this.p.normalize();
+    this.tpl.normalize();
     this.added = true;
 
     // move cursor to the start
@@ -148,7 +163,7 @@ Normalize.prototype.update = raf(function(e) {
  * @api private
  */
 
-Normalize.prototype.front = raf(function() {
+Normalize.prototype.front = throttle(function() {
   if (this.added && this.el == document.activeElement) {
     this.start(this.p);
   }
@@ -207,6 +222,46 @@ Normalize.prototype.prevent = function(e) {
   }
   return false;
 };
+
+/**
+ * On Enter
+ *
+ * TODO: fix auto-scrolling on content-editable
+ *
+ * @param {Event} e
+ * @return {Normalize} self
+ * @api private
+ */
+
+Normalize.prototype.onenter = function(e) {
+  if (this.added) return this.prevent(e);
+  var tpl = this.tpl.cloneNode(true);
+  var p = tpl.querySelector('p');
+  var sel = selection();
+  var node = sel.focusNode;
+  var offset = sel.focusOffset;
+  var block = closest(node, '.block');
+  var sliced = '';
+
+  e.preventDefault();
+
+  if (node.nodeValue) {
+    sliced = node.nodeValue.slice(offset);
+
+    if (offset) {
+      node.nodeValue = node.nodeValue.slice(0, offset);
+    } else {
+      node.parentNode.innerHTML = '<br>';
+    }
+  }
+
+  p.className = '';
+  p.innerHTML = sliced ? sliced : '<br>';
+  block.parentNode.insertBefore(tpl, block.nextSibling);
+
+  this.start(p);
+};
+
 
 /**
  * Unbind all events
