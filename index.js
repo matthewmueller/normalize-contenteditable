@@ -63,6 +63,7 @@ function Normalize(el) {
   // events
   this.events = events(el, this);
   this.events.bind('keydown', 'update');
+  this.events.bind('paste', 'update');
   this.events.bind('mousedown', 'front');
   this.events.bind('mousemove', 'front');
   this.events.bind('touchend', 'front');
