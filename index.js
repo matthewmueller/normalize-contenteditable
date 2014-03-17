@@ -129,7 +129,7 @@ Normalize.prototype.update = throttle(function(e) {
     this.p.textContent = this.p.textContent.slice(0, -this._placeholder.length);
     this.end(this.p);
     this.added = false;
-  } if (!trim(str) && !this.added && el.children.length <= 1) {
+  } else if (!trim(str) && !this.added && el.children.length <= 1) {
     // FF removes the paragraph with select all, add it back.
     if (!el.contains(this.tpl)) {
       if (el.firstChild) el.insertBefore(this.tpl, el.firstChild);
