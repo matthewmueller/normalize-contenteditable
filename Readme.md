@@ -1,6 +1,8 @@
 
 # normalize-contenteditable
 
+  **[Deprecated] this is a good start, but it's not comprehensive enough. https://github.com/guardian/scribe is much more mature and handles many more of the edge cases you may come across.**
+
   All text in a content-editable block should be wrapped in `<p>` tag. Each browser handles content-editables just a bit different. The goal of this library is to normalize these inconsistencies.
 
 ## Installation
