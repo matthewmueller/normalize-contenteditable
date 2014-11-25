@@ -12,7 +12,7 @@
     "component/classes": "1.2.1",
     "yields/shortcuts": "0.2.0",
     "bmcmahen/modifier": "0.0.1",
-    "discore/closest": "0.1.2",
+    "component/closest": "0.1.4",
     "component/raf": "*"
   },
   "development": {},
